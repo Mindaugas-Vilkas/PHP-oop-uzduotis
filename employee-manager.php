@@ -3,36 +3,14 @@
     require 'cli.php';
     require 'strings.php';
 
-    echo"\n\n\n       Welcome to the employee manager.\nTo check the manual enter -h.\n";
+    echo"\n\n\n       Welcome to the employee manager.\n";
 
     $handle = fopen ("php://stdin","r");
     $cli = new CLI;
 
-    $credentials['host'] = '';
-    $credentials['username'] = '';
-    $credentials['password'] = '';
-    $credentials['database'] = '';
-
-    //TODO: Login to database. Should I actually do it ???
-//    do
-//    {
-//        foreach($credentials as $key => $cred){
-//            echo"\n";
-//            $command = trim(readline("Enter {$key}: "));
-//            readline_add_history($command);
-//            $credentials[$key] = $command;
-//        }
-//        break;
-//    } while ($credentials['host'] != false
-//    || $credentials['username'] != false
-//    || $credentials['password'] != false
-//    || $credentials['database'] != false);
-
-
-
     do
     {
-        echo"\n";
+        echo"\nTo check the manual enter -h.\n";
         $command = trim(strtolower(readline("Enter Command: ")));
         readline_add_history($command);
         switch ($command) {
@@ -82,7 +60,9 @@
                 $cli->import($command);
                 break;
 
-            case 'exit': break;
+            case 'exit':
+                $connection->close();
+                break;
 
             default: print "Use '-h' for the command manual. Use 'exit' to turn the script off.";
         }
