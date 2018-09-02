@@ -13,7 +13,6 @@
     $credentials['password'] = '';
     $credentials['database'] = '';
 
-    //TODO: Login to database.
     do
     {
         foreach($credentials as $key => $cred){

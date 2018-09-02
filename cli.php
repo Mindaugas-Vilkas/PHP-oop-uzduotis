@@ -371,7 +371,9 @@ class CLI
         // Test connection
         if ($connection->connect_error)
         {
-            return $error = 'There was an issue connecting to the database.';
+            echo"There was an issue connecting to the database.\n";
+            echo'Please try again.';
+            exit;
         }
         else
         {
