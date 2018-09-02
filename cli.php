@@ -34,7 +34,6 @@ class CLI
                 . mysqli_real_escape_string($connection, $validatedArray[3]) ."','"
                 . mysqli_real_escape_string($connection, $validatedArray[4]) ."','"
                 . mysqli_real_escape_string($connection, $validatedArray[5]) ."')");
-            $connection->close();
 
             echo$validatedArray[0] . " " . $validatedArray[1] ." was successfully added as a new entry.\n";
         }
@@ -46,41 +45,6 @@ class CLI
         elseif (is_array($dbResponse))
         {
             echo$validatedArray[0] . " " . $validatedArray[1] ." is repeated multiple times in the database. Please delete one or all the multiples before updating or recreating their data.\n";
-        }
-    }
-
-    public function update($csvString)
-    {
-        $validatedArray = CLI::validateSingle($csvString);
-
-        if ($validatedArray == null)
-        {
-            //Error has occured, we're noping out.
-            return null;
-        }
-
-        $dbResponse = CLI::findIdByName($validatedArray[0], $validatedArray[1]);
-
-        if($dbResponse == null)
-        {
-            echo 'Could not find entry to update';
-        }
-        elseif (is_string($dbResponse))
-        {
-            $connection = new mysqli('localhost', 'root', '', 'phpoop');
-            $connection->query("UPDATE employees
-					SET 
-					email='". mysqli_real_escape_string($connection, $validatedArray[2]) ."',
-					primary_phone_number='". mysqli_real_escape_string($connection, $validatedArray[3]) ."',
-					secondary_phone_number='". mysqli_real_escape_string($connection, $validatedArray[4]) ."',
-					comments='". mysqli_real_escape_string($connection, $validatedArray[5]) ."'
-					WHERE first_name='". mysqli_real_escape_string($connection, $validatedArray[0])
-                ."' AND last_name='". mysqli_real_escape_string($connection, $validatedArray[1]) ."'");
-        }
-        elseif (is_array($dbResponse))
-        {
-            // TODO: updateId method ?
-            echo 'Found multiple entries for the provided person. Delete one before updating.';
         }
     }
 
@@ -114,6 +78,40 @@ class CLI
         CLI::showLogic($dbResponse);
     }
 
+    public function update($csvString)
+    {
+        $validatedArray = CLI::validateSingle($csvString);
+
+        if ($validatedArray == null)
+        {
+            //Error has occured, we're noping out.
+            return null;
+        }
+
+        $dbResponse = CLI::findIdByName($validatedArray[0], $validatedArray[1]);
+
+        if($dbResponse == null)
+        {
+            echo 'Could not find entry to update';
+        }
+        elseif (is_string($dbResponse))
+        {
+            $connection = new mysqli('localhost', 'root', '', 'phpoop');
+            $connection->query("UPDATE employees
+					SET 
+					email='". mysqli_real_escape_string($connection, $validatedArray[2]) ."',
+					primary_phone_number='". mysqli_real_escape_string($connection, $validatedArray[3]) ."',
+					secondary_phone_number='". mysqli_real_escape_string($connection, $validatedArray[4]) ."',
+					comments='". mysqli_real_escape_string($connection, $validatedArray[5]) ."'
+					WHERE first_name='". mysqli_real_escape_string($connection, $validatedArray[0])
+                ."' AND last_name='". mysqli_real_escape_string($connection, $validatedArray[1]) ."'");
+        }
+        elseif (is_array($dbResponse))
+        {
+            echo 'Found multiple entries for the provided person. Delete one before updating.';
+        }
+    }
+
     public function delete($csvString)
     {
         $validatedArray = CLI::validateName($csvString);
@@ -127,16 +125,15 @@ class CLI
         $dbResponse = CLI::findIdByName($validatedArray[0], $validatedArray[1]);
 
         if($dbResponse == null) {
-            echo"No entry found that matched.\n";
+            echo"No entry found that matched.\n\n";
         }
         elseif (is_string($dbResponse))
         {
-            // If only one ID retrieved it's a safe and simple delete.
             $connection = new mysqli('localhost', 'root', '', 'phpoop');
+            // If only one ID retrieved it's a safe and simple delete.
             $connection->query("DELETE FROM employees WHERE(first_name='"
                 . mysqli_real_escape_string($connection, $validatedArray[0]) ."' AND last_name='"
                 . mysqli_real_escape_string($connection, $validatedArray[1]) ."')");
-            $connection->close();
             echo"Removed " . $validatedArray[0] . " " . $validatedArray[1] . " from database\n";
 
         }
@@ -148,9 +145,6 @@ class CLI
                 echo"ID: {$d}\n";
             }
         }
-
-        $dbResponse = CLI::findIdByName($validatedArray[0], $validatedArray[1]);
-
 
     }
 
