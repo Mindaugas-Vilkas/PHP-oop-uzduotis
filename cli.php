@@ -6,7 +6,7 @@ Poe;Tato;potato@badjoke.ha;+325487548;+365784541;Delicious boiled, with dill and
 */
 class CLI
 {
-    public function create($csvString){
+    public function create($csvString, $connection){
 
         $validatedArray = CLI::validateSingle($csvString);
 
@@ -19,7 +19,6 @@ class CLI
         $dbResponse = CLI::findIdByName($validatedArray[0], $validatedArray[1]);
 
         if($dbResponse == null) {
-            $connection = new mysqli('localhost', 'root', '', 'phpoop');
             $connection->query("INSERT INTO employees(
 					first_name,
 					last_name,
@@ -34,7 +33,6 @@ class CLI
                 . mysqli_real_escape_string($connection, $validatedArray[3]) ."','"
                 . mysqli_real_escape_string($connection, $validatedArray[4]) ."','"
                 . mysqli_real_escape_string($connection, $validatedArray[5]) ."')");
-            $connection->close();
 
             echo$validatedArray[0] . " " . $validatedArray[1] ." was successfully added as a new entry.\n";
         }
@@ -49,7 +47,37 @@ class CLI
         }
     }
 
-    public function update($csvString)
+    public function showByName($csvString, $connection)
+    {
+        $validatedArray = CLI::validateName($csvString);
+
+        if ($validatedArray == null)
+        {
+            //Error has occured, we're noping out.
+            return null;
+        }
+
+        $dbResponse = CLI::findIdByName($validatedArray[0], $validatedArray[1]);
+
+        CLI::showLogic($dbResponse);
+    }
+
+    public function showByEmail($email, $connection)
+    {
+        $validatedEmail = CLI::validateEmail($email);
+
+        if ($validatedEmail == null)
+        {
+            //Error has occured, we're noping out.
+            return null;
+        }
+
+        $dbResponse = CLI::findIdByEmail($validatedEmail);
+
+        CLI::showLogic($dbResponse);
+    }
+
+    public function update($csvString, $connection)
     {
         $validatedArray = CLI::validateSingle($csvString);
 
@@ -67,7 +95,6 @@ class CLI
         }
         elseif (is_string($dbResponse))
         {
-            $connection = new mysqli('localhost', 'root', '', 'phpoop');
             $connection->query("UPDATE employees
 					SET 
 					email='". mysqli_real_escape_string($connection, $validatedArray[2]) ."',
@@ -79,42 +106,11 @@ class CLI
         }
         elseif (is_array($dbResponse))
         {
-            // TODO: updateId method ?
             echo 'Found multiple entries for the provided person. Delete one before updating.';
         }
     }
 
-    public function showByName($csvString)
-    {
-        $validatedArray = CLI::validateName($csvString);
-
-        if ($validatedArray == null)
-        {
-            //Error has occured, we're noping out.
-            return null;
-        }
-
-        $dbResponse = CLI::findIdByName($validatedArray[0], $validatedArray[1]);
-
-        CLI::showLogic($dbResponse);
-    }
-
-    public function showByEmail($email)
-    {
-        $validatedEmail = CLI::validateEmail($email);
-
-        if ($validatedEmail == null)
-        {
-            //Error has occured, we're noping out.
-            return null;
-        }
-
-        $dbResponse = CLI::findIdByEmail($validatedEmail);
-
-        CLI::showLogic($dbResponse);
-    }
-
-    public function delete($csvString)
+    public function delete($csvString, $connection)
     {
         $validatedArray = CLI::validateName($csvString);
 
@@ -127,16 +123,14 @@ class CLI
         $dbResponse = CLI::findIdByName($validatedArray[0], $validatedArray[1]);
 
         if($dbResponse == null) {
-            echo"No entry found that matched.\n";
+            echo"No entry found that matched.\n\n";
         }
         elseif (is_string($dbResponse))
         {
             // If only one ID retrieved it's a safe and simple delete.
-            $connection = new mysqli('localhost', 'root', '', 'phpoop');
             $connection->query("DELETE FROM employees WHERE(first_name='"
                 . mysqli_real_escape_string($connection, $validatedArray[0]) ."' AND last_name='"
                 . mysqli_real_escape_string($connection, $validatedArray[1]) ."')");
-            $connection->close();
             echo"Removed " . $validatedArray[0] . " " . $validatedArray[1] . " from database\n";
 
         }
@@ -149,21 +143,17 @@ class CLI
             }
         }
 
-        $dbResponse = CLI::findIdByName($validatedArray[0], $validatedArray[1]);
-
-
     }
 
-    public function deleteId($id)
+    public function deleteId($id, $connection)
     {
-        $connection = new mysqli('localhost', 'root', '', 'phpoop');
         $connection->query("DELETE FROM employees WHERE(id='"
             . mysqli_real_escape_string($connection, $id) . "')");
 
         echo "Entry deleted\n";
     }
 
-    public function import($file)
+    public function import($file, $connection)
     {
         $stringArray =[];
         if(($csvFile = fopen($file, 'r')) !== false)
@@ -186,7 +176,7 @@ class CLI
         print_r($stringArray);
 
         foreach ($stringArray as $key => $csvString) {
-            CLI::create($csvString);
+            CLI::create($csvString, $connection);
         }
     }
 
@@ -371,5 +361,23 @@ class CLI
             }
 
         }
+    }
+
+    public function connectToDb($credentials)
+    {
+        echo"Testing database credentials.";
+        $connection = new mysqli($credentials['host'], $credentials['username'], $credentials['password'], $credentials['database']);
+
+        // Test connection
+        if ($connection->connect_error)
+        {
+            return $error = 'There was an issue connecting to the database.';
+        }
+        else
+        {
+            echo"Success.\n\n";
+        }
+
+        return $connection;
     }
 }
