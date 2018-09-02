@@ -1,6 +1,8 @@
 Employee manager
 ========================
 
+**Dependencies**: PHP 7.1; phpunit 3.7.21;
+
 **Usage**: Run from CLI(tested with git bash) "php employee-manager.php
 
 
