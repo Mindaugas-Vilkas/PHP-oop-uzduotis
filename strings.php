@@ -28,4 +28,4 @@
     $exampleName = 'first_name;last_name';
     $exampleEmail = 'mailname@mailserver.ext';
 
-    $test = 'C://xampp/htdocs/phpoop/MOCK_UP.scv';
+    $test = 'C://xampp/htdocs/phpoop/MOCK_UP.csv';
