@@ -18,69 +18,63 @@ class CLITest extends PHPUnit_Framework_TestCase
 
 
 
-    public function testValidateSingle()
+    public function testValidateSingleProvider()
     {
-        $result = $this->command->validateSingle('John;Doe;mail@mail.com;+1;+2;mary sue;');
-        $this->assertEquals(array('John','Doe','mail@mail.com','+1','+2','mary sue'), $result);
+        return array(
+            array('John;Doe;mail@mail.com;+1;+2;mary sue;', array('John','Doe','mail@mail.com','+1','+2','mary sue')),
+            array('John;Doe;mail@mail.com;+1;+2;', array('John','Doe','mail@mail.com','+1','+2','')),
+            array('John;Doe;;+1;+2;', null),
+            array('John;Doe;;+1;+2;;;', null),
+        );
     }
 
-    public function testValidateSingleNoComment()
+    /**
+    *   @dataProvider testValidateSingleProvider
+    */
+    public function testValidateSingle($data, $expected)
     {
-        $result = $this->command->validateSingle('John;Doe;mail@mail.com;+1;+2;');
-        $this->assertEquals(array('John','Doe','mail@mail.com','+1','+2',''), $result);
-    }
-
-    public function testValidateSingleNoEmail()
-    {
-        $result = $this->command->validateSingle('John;Doe;;+1;+2;');
-        $this->assertEquals(null, $result);
-    }
-
-    public function testValidateSingleTooManySeparators()
-    {
-        $result = $this->command->validateSingle('John;Doe;;+1;+2;;');
-        $this->assertEquals(null, $result);
+        $result = $this->command->validateSingle($data);
+        $this->assertEquals($expected, $result);
     }
 
 
 
-    public function testValidateName()
+    public function testValidateNameProvider()
     {
-        $result = $this->command->validateName('John;Doe');
-        $this->assertEquals(array('John','Doe'), $result);
+        return array(
+            array('John;Doe', array('John','Doe')),
+            array('John;Doe;;', null),
+        );
     }
 
-    public function testValidateNameTooManySeparators()
+    /**
+     *   @dataProvider testValidateNameProvider
+     */
+    public function testValidateName($data, $expected)
     {
-        $result = $this->command->validateName('John;Doe;;');
-        $this->assertEquals(null, $result);
+        $result = $this->command->validateName($data);
+        $this->assertEquals($expected, $result);
     }
 
 
 
-
-    public function testValidateEmail()
+    public function testValidateEmailProvider()
     {
-        $result = $this->command->validateEmail('quitarias@gmail.com');
-        $this->assertEquals('quitarias@gmail.com', $result);
+        return array(
+            array('quitarias@gmail.com', 'quitarias@gmail.com'),
+            array('quit.arias@gmail.com', 'quit.arias@gmail.com'),
+            array('(comment)localpart@example.com', null),
+            array('localpart.ending.with.dot.@example.com', null),
+        );
     }
 
-    public function testValidateEmailDot()
+    /**
+     *   @dataProvider testValidateEmailProvider
+     */
+    public function testValidateEmail($data, $expected)
     {
-        $result = $this->command->validateEmail('quit.arias@gmail.com');
-        $this->assertEquals('quit.arias@gmail.com', $result);
-    }
-
-    public function testValidateEmailStrange()
-    {
-        $result = $this->command->validateEmail('(comment)localpart@example.com');
-        $this->assertEquals(null, $result);
-    }
-
-    public function testValidateEmailEndWithDot()
-    {
-        $result = $this->command->validateEmail('localpart.ending.with.dot.@example.com');
-        $this->assertEquals(null, $result);
+        $result = $this->command->validateEmail($data);
+        $this->assertEquals($expected, $result);
     }
 
 }
