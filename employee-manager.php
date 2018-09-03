@@ -1,5 +1,4 @@
 <?php
-    
     require 'cli.php';
     require 'strings.php';
 
@@ -61,7 +60,6 @@
                 break;
 
             case 'exit':
-                $connection->close();
                 break;
 
             default: print "Use '-h' for the command manual. Use 'exit' to turn the script off.";
